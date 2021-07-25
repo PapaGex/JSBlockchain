@@ -18,6 +18,3 @@ const swarm = Swarm(config);
 
 (async () => {
     const port = await getPort();
-
-    swarm.listen(port);
-})

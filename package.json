@@ -11,5 +11,9 @@
   },
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+    "crypto": "^1.0.1",
+    "discovery-swarm": "^5.1.0"
+  }
 }
