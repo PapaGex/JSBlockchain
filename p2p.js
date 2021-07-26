@@ -77,10 +77,23 @@ writeMessageToPeers = (type, data) => {
 
 writeMessageToPeerId = (toId, type, data) => {
     for (let id in peers) {
-    if (id === told) {
-    console.log('------------------------------writeMessageToPeerToId start----------------------------');
-    console.log(`type: ${type} , to: ${toId}`);
-    console.log('------------------------------writeMessageToPeerToId end------------------------------');
-    sendMessage(id, type, data);
-}
+        if (id === told) {
+            console.log('------------------------------writeMessageToPeerToId start----------------------------');
+            console.log(`type: ${type} , to: ${toId}`);
+            console.log('------------------------------writeMessageToPeerToId end------------------------------');
+            sendMessage(id, type, data);
+        }
+    }
+};
+
+sendMessage = (id, type, data) => {
+    peers[id].conn.write(JSON.stringify(
+        {
+            to: id,
+            from: myPeerId,
+            type: type,
+            data: data
+        }
+    ));
+};
 
