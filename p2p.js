@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const Swarm = require('discovery-swarm');
 const defaults = require('dat-swarm-defaults');
 const getPort = require('get-port');
+const chain = require("./chain");
 
 const peers = {};
 let connSeq = 0;
@@ -13,6 +14,38 @@ console.log(`myPeerId: ${myPeerId.toString('hex')}`);
 const config = defaults({
     id: myPeerId,
 });
+
+let MessageType = {
+    REQUEST_LATEST_BLOCK: 'requestLatestBlock',
+    LATEST_BLOCK: 'latestBlock'
+};
+
+switch (message.type) {
+    case MessageType.REQUEST_BLOCK:
+        console.log('------------REQUEST_BLOCK--------------');
+        let requestedIndex = (JSON.parse(JSON.stringify(message.data))).index;
+        let requestedBlock = chain.getBlock(requestedIndex);
+        if (requestedBlock)
+        writeMessageToPeerToId(peerId.toString('hex'),
+        MessageType.RECEIVE_NEXT_BLOCK, requestedBlock);
+        else
+            console.log('No block found @ index: ' + requestedIndex);
+        console.log('-----------------REQUEST_BLOCK--------------');
+        break;
+    case MessageType.RECEIVE_NEXT_BLOCK:
+        console.log('-----------------RECEIVE_NEXT_BLOCK---------------');
+        chain.addBlock(JSON.parse(JSON.stringify(message.data)));
+        console.log(JSON.stringify(chain.blockchain));
+        let nextBlockIndex = chain.getLatestBlock().index+1;
+        console.log(`--- request next block @ index: ${nextBlockIndex}`);
+        writeMessageToPeers(MessageType.REQUEST_BLOCK, {index: nextBlockIndex});
+        console.log('--------------------RECEIVE_NEXT_BLOCK-----------------');
+        break;
+}
+
+setTimeout(function(){
+    writeMessageToPeers(MessageType.REQUEST_BLOCK, {index: chain.getLatestBlock(),index+1});
+}, 5000);
 
 const swarm = Swarm(config);
 
